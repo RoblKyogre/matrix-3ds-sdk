@@ -2,11 +2,11 @@
 .SUFFIXES:
 #---------------------------------------------------------------------------------
 
-ifeq ($(strip $(DEVKITARM)),)
-$(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
+ifeq ($(strip $(DEVKITPRO)),)
+$(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/devkitpro")
 endif
 
-include $(DEVKITARM)/3ds_rules
+include $(DEVKITPRO)/libnx/switch_rules
 
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
@@ -24,13 +24,13 @@ INCLUDES	:=	include
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
+ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 
-CFLAGS	:=	-g -Wall -O2 -mword-relocations \
+CFLAGS	:=	-g -Wall -O2 \
 			-fomit-frame-pointer -ffunction-sections \
 			$(ARCH)
 
-CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
+CFLAGS	+=	$(INCLUDE) -DARM11 -D_SWITCH
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions
 
 ASFLAGS	:=	-g $(ARCH)
@@ -39,7 +39,7 @@ ASFLAGS	:=	-g $(ARCH)
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:=	$(CTRULIB) $(DEVKITPRO)/portlibs/3ds
+LIBDIRS	:=	$(LIBNX) $(DEVKITPRO)/portlibs/switch
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -90,12 +90,12 @@ all: $(BUILD)
 
 ifeq ($(OS),Windows_NT)
 install:
-	@cp -rf lib/* $(DEVKITPRO)/portlibs/3ds/lib/
-	@cp -rf include/* $(DEVKITPRO)/portlibs/3ds/include/
+	@cp -rf lib/* $(DEVKITPRO)/portlibs/switch/lib/
+	@cp -rf include/* $(DEVKITPRO)/portlibs/switch/include/
 else
 install:
-	@sudo cp -rf lib/* $(DEVKITPRO)/portlibs/3ds/lib/
-	@sudo cp -rf include/* $(DEVKITPRO)/portlibs/3ds/include/
+	@sudo cp -rf lib/* $(DEVKITPRO)/portlibs/switch/lib/
+	@sudo cp -rf include/* $(DEVKITPRO)/portlibs/switch/include/
 endif
 
 lib:

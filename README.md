@@ -1,7 +1,7 @@
 
-# matrix-3ds-sdk
+# matrix-nx-sdk
 
-This is a [Matrix](https://matrix.org/) client SDK for the Nintendo 3DS.
+This is a [Matrix](https://matrix.org/) client SDK for the Nintendo Switch. This code is forked from the [Matrix 3DS Client SDK](https://github.com/Sorunome/matrix-3ds-sdk).
 
 ## Prerequisites
 
@@ -9,14 +9,14 @@ This is a [Matrix](https://matrix.org/) client SDK for the Nintendo 3DS.
 
 After installing devkitPro, you will need to download the following using [devkitPro pacman](https://devkitpro.org/wiki/devkitPro_pacman) or the devkitPro updater:
 
-- 3ds-curl
-- 3ds-jansson
-- 3ds-dev
+- switch-curl
+- switch-jansson
+- switch-dev
 
 In other words, you'll need to run the following command in a Terminal/command prompt (with administrator/root privileges):
 
 ```
-dkp-pacman -S 3ds-curl 3ds-jansson 3ds-dev
+dkp-pacman -S switch-curl switch-jansson switch-dev
 ```
 
 ## Compilation
@@ -33,13 +33,14 @@ make install
 As mentioned above, this library depends on jansson and libcurl. Make sure to add them to your project's compilation options and make sure that they have been included in your project's Makefile:
 
 ```
--lmatrix-3ds-sdk -ljansson `curl-config --libs`
+-lmatrix-nx-sdk -ljansson `curl-config --libs`
 ```
 
 ### Support
 
-[![Support room on Matrix](https://img.shields.io/matrix/matrix-3ds-sdk:sorunome.de.svg?label=%23matrix-3ds-sdk:sorunome.de&logo=matrix&server_fqdn=sorunome.de)](https://matrix.to/#/#matrix-3ds-sdk:sorunome.de)
+[![3DS spec support room on Matrix](https://img.shields.io/matrix/matrix-3ds-sdk:sorunome.de.svg?label=%23matrix-3ds-sdk:sorunome.de&logo=matrix&server_fqdn=sorunome.de)](https://matrix.to/#/#matrix-3ds-sdk:sorunome.de)
 
 ### Funding
 
+Donate to the original creator ([Sorunome](https://github.com/Sorunome/matrix-3ds-sdk)):
 [![donate](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/Sorunome/donate)
