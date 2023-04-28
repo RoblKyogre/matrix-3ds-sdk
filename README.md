@@ -38,9 +38,12 @@ As mentioned above, this library depends on jansson and libcurl. Make sure to ad
 
 ### Support
 
+Original Project:
+
 [![3DS spec support room on Matrix](https://img.shields.io/matrix/matrix-3ds-sdk:sorunome.de.svg?label=%23matrix-3ds-sdk:sorunome.de&logo=matrix&server_fqdn=sorunome.de)](https://matrix.to/#/#matrix-3ds-sdk:sorunome.de)
 
 ### Funding
 
 Donate to the original creator ([Sorunome](https://github.com/Sorunome/matrix-3ds-sdk)):
+
 [![donate](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/Sorunome/donate)
