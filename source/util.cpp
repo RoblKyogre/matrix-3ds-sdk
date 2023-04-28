@@ -1,7 +1,7 @@
 #include "util.h"
 #include <string>
 #include <sstream>
-#include <3ds.h>
+#include <switch.h>
 #include <jansson.h>
 
 // from http://www.zedwood.com/article/cpp-urlencode-function

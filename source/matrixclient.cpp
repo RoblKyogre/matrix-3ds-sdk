@@ -1,7 +1,7 @@
 #include <matrixclient.h>
 #include <inttypes.h>
 #include <stdio.h>
-#include <3ds.h>
+#include <switch.h>
 #include <jansson.h>
 #include <malloc.h>
 #include <curl/curl.h>
@@ -399,14 +399,14 @@ void Client::startSyncLoop() {
 	stopSyncing = false;
 	s32 prio = 0;
 	svcGetThreadPriority(&prio, CUR_THREAD_HANDLE);
-	syncThread = threadCreate(startSyncLoopWithoutClass, this, 8*1024, prio-1, -2, true);
+	threadCreate(syncThread, startSyncLoopWithoutClass, this, NULL, 8*1024, prio-1, -2);
 }
 
 void Client::stopSyncLoop() {
 	stopSyncing = true;
 	if (isSyncing) {
-		threadJoin(syncThread, U64_MAX);
-		threadFree(syncThread);
+		threadWaitForExit(syncThread);
+		threadClose(syncThread);
 	}
 	isSyncing = false;
 }
@@ -733,7 +733,7 @@ json_t* Client::doRequest(const char* method, std::string path, json_t* body, u3
 
 CURLM* curl_multi_handle;
 std::map<CURLM*, CURLcode> curl_handles_done;
-Thread curl_multi_loop_thread;
+Thread* curl_multi_loop_thread;
 
 
 void curl_multi_loop(void* p) {
@@ -765,13 +765,13 @@ json_t* Client::doRequestCurl(const char* method, std::string url, json_t* body,
 		if (!SOC_buffer) {
 			return NULL;
 		}
-		if (socInit(SOC_buffer, POST_BUFFERSIZE) != 0) {
+		if (socketInitializeDefault() != 0) {
 			return NULL;
 		}
 		curl_multi_handle = curl_multi_init();
 		s32 prio = 0;
 		svcGetThreadPriority(&prio, CUR_THREAD_HANDLE);
-		curl_multi_loop_thread = threadCreate(curl_multi_loop, NULL, 8*1024, prio-1, -2, true);
+		threadCreate(curl_multi_loop_thread, curl_multi_loop, NULL, NULL, 8*1024, prio-1, -2);
 	}
 
 	CURL* curl = curl_easy_init();

@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <3ds.h>
+#include <switch.h>
 #include <jansson.h>
 #include <map>
 #include <curl/curl.h>
@@ -47,7 +47,7 @@ private:
 	int requestId = 0;
 	bool stopSyncing = false;
 	bool isSyncing = false;
-	Thread syncThread;
+	Thread* syncThread;
 	struct {
 		eventCallback event = NULL;
 		eventCallback leaveRoom = NULL;

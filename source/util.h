@@ -2,7 +2,7 @@
 #define _UTIL_H_
 
 #include <string>
-#include <3ds.h>
+#include <switch.h>
 #include <jansson.h>
 
 std::string urlencode(std::string str);
