@@ -31,9 +31,9 @@ PrintConsole* topScreenDebugConsole = NULL;
 #endif
 
 #if DEBUG
-#define printf_top(f_, ...) do {consoleSelect(topScreenDebugConsole);printf((f_), ##__VA_ARGS__);} while(0)
+#define printf_debug(f_, ...) do {printf((f_), ##__VA_ARGS__);} while(0)
 #else
-#define printf_top(f_, ...) do {} while(0)
+#define printf_debug(f_, ...) do {} while(0)
 #endif
 
 namespace Matrix {
@@ -120,7 +120,7 @@ std::string Client::resolveRoom(std::string alias) {
 		return "";
 	}
 	std::string roomIdStr = roomIdCStr;
-	printf_top("Room ID: %s\n", roomIdStr.c_str());
+	printf_debug("Room ID: %s\n", roomIdStr.c_str());
 	json_decref(ret);
 	return roomIdStr;
 }
@@ -480,7 +480,7 @@ void Client::processSync(json_t* sync) {
 				leaveEvent = event;
 			}
 			if (!leaveEvent) {
-				printf_top("Left room %s without an event\n", roomId);
+				printf_debug("Left room %s without an event\n", roomId);
 				continue;
 			}
 			callbacks.leaveRoom(roomId, leaveEvent);
@@ -534,7 +534,7 @@ void Client::processSync(json_t* sync) {
 				inviteEvent = event;
 			}
 			if (!inviteEvent) {
-				printf_top("Invite to room %s without an event\n", roomId);
+				printf_debug("Invite to room %s without an event\n", roomId);
 				continue;
 			}
 			callbacks.inviteRoom(roomId, inviteEvent);
@@ -653,9 +653,9 @@ void Client::registerFilter() {
 	json_error_t error;
 	json_t* filter = json_loads(json, 0, &error);
 	if (!filter) {
-		printf_top("PANIC!!!!! INVALID FILTER JSON!!!!\n");
-		printf_top("%s\n", error.text);
-		printf_top("At %d:%d (%d)\n", error.line, error.column, error.position);
+		printf_debug("PANIC!!!!! INVALID FILTER JSON!!!!\n");
+		printf_debug("%s\n", error.text);
+		printf_debug("At %d:%d (%d)\n", error.line, error.column, error.position);
 		return;
 	}
 	std::string userId = getUserId();
@@ -699,7 +699,7 @@ void Client::syncLoop() {
 		} else {
 			if (res == CURLE_OPERATION_TIMEDOUT) {
 				timeout += 10*60;
-				printf_top("Timeout reached, increasing it to %lu\n", timeout);
+				printf_debug("Timeout reached, increasing it to %lu\n", timeout);
 			}
 		}
 		svcSleepThread((u64)1000000ULL * (u64)200);
@@ -707,7 +707,7 @@ void Client::syncLoop() {
 }
 
 json_t* Client::doSync(std::string token, std::string filter, u32 timeout, CURLcode* res) {
-//	printf_top("Doing sync with token %s\n", token.c_str());
+//	printf_debug("Doing sync with token %s\n", token.c_str());
 	
 	std::string query = "?full_state=false&timeout=" + std::to_string(SYNC_TIMEOUT) + "&filter=" + urlencode(filter);
 	if (token != "") {
@@ -717,7 +717,7 @@ json_t* Client::doSync(std::string token, std::string filter, u32 timeout, CURLc
 }
 
 size_t DoRequestWriteCallback(char *contents, size_t size, size_t nmemb, void *userp) {
-//	printf_top("----\n%s\n", ((std::string*)userp)->c_str());
+//	printf_debug("----\n%s\n", ((std::string*)userp)->c_str());
 	((std::string*)userp)->append((char*)contents, size * nmemb);
 	return size * nmemb;
 }
@@ -741,7 +741,7 @@ void curl_multi_loop(void* p) {
 	while(true) {
 		CURLMcode mc = curl_multi_perform(curl_multi_handle, &openHandles);
 		if (mc != CURLM_OK) {
-			printf_top("curl multi fail: %u\n", mc);
+			printf_debug("curl multi fail: %u\n", mc);
 		}
 //		curl_multi_wait(curl_multi_handle, NULL, 0, 1000, &openHandles);
 		CURLMsg* msg;
@@ -758,7 +758,7 @@ void curl_multi_loop(void* p) {
 }
 
 json_t* Client::doRequestCurl(const char* method, std::string url, json_t* body, u32 timeout, CURLcode* retRes) {
-	printf_top("Opening Request %d with CURL\n%s\n", requestId, url.c_str());
+	printf_debug("Opening Request %d with CURL\n%s\n", requestId, url.c_str());
 
 	if (!SOC_buffer) {
 		SOC_buffer = (u32*)memalign(0x1000, POST_BUFFERSIZE);
@@ -776,7 +776,7 @@ json_t* Client::doRequestCurl(const char* method, std::string url, json_t* body,
 
 	CURL* curl = curl_easy_init();
 	if (!curl) {
-		printf_top("curl init failed\n");
+		printf_debug("curl init failed\n");
 		return NULL;
 	}
 	std::string readBuffer;
@@ -820,16 +820,16 @@ json_t* Client::doRequestCurl(const char* method, std::string url, json_t* body,
 	if (bodyStr) free(bodyStr);
 	if (retRes) *retRes = res;
 	if (res != CURLE_OK) {
-		printf_top("curl res not ok %d\n", res);
+		printf_debug("curl res not ok %d\n", res);
 		return NULL;
 	}
 
-//	printf_top("++++\n%s\n", readBuffer.c_str());
-	printf_top("Body size: %d\n", readBuffer.length());
+//	printf_debug("++++\n%s\n", readBuffer.c_str());
+	printf_debug("Body size: %d\n", readBuffer.length());
 	json_error_t error;
 	json_t* content = json_loads(readBuffer.c_str(), 0, &error);
 	if (!content) {
-		printf_top("Failed to parse json\n");
+		printf_debug("Failed to parse json\n");
 		return NULL;
 	}
 	return content;
