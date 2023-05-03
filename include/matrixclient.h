@@ -47,7 +47,7 @@ private:
 	int requestId = 0;
 	bool stopSyncing = false;
 	bool isSyncing = false;
-	Thread* syncThread;
+	Thread syncThread;
 	struct {
 		eventCallback event = NULL;
 		eventCallback leaveRoom = NULL;

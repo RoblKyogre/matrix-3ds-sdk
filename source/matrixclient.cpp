@@ -27,11 +27,7 @@
 #endif
 
 #if DEBUG
-PrintConsole* topScreenDebugConsole = NULL;
-#endif
-
-#if DEBUG
-#define printf_debug(f_, ...) do {printf((f_), ##__VA_ARGS__);} while(0)
+#define printf_debug(f_, ...) do {printf((f_), ##__VA_ARGS__);consoleUpdate(NULL);} while(0)
 #else
 #define printf_debug(f_, ...) do {} while(0)
 #endif
@@ -52,10 +48,7 @@ Client::Client(std::string homeserverUrl, std::string matrixToken, Store* client
 	}
 	store = clientStore;
 #if DEBUG
-	if (!topScreenDebugConsole) {
-		topScreenDebugConsole = new PrintConsole;
-		consoleInit(GFX_TOP, topScreenDebugConsole);
-	}
+	consoleDebugInit(debugDevice_CONSOLE);
 #endif
 }
 
@@ -71,7 +64,7 @@ bool Client::login(std::string username, std::string password) {
 	json_object_set_new(identifier, "user", json_string(username.c_str()));
 	json_object_set_new(request, "identifier", identifier);
 	json_object_set_new(request, "password", json_string(password.c_str()));
-	json_object_set_new(request, "initial_device_display_name", json_string("Nintendo 3DS"));
+	json_object_set_new(request, "initial_device_display_name", json_string("Nintendo Switch"));
 
 	json_t* ret = doRequest("POST", "/_matrix/client/r0/login", request);
 	json_decref(request);
@@ -399,14 +392,14 @@ void Client::startSyncLoop() {
 	stopSyncing = false;
 	s32 prio = 0;
 	svcGetThreadPriority(&prio, CUR_THREAD_HANDLE);
-	threadCreate(syncThread, startSyncLoopWithoutClass, this, NULL, 8*1024, prio-1, -2);
+	threadCreate(&syncThread, startSyncLoopWithoutClass, this, NULL, 8*1024, prio-1, -2);
 }
 
 void Client::stopSyncLoop() {
 	stopSyncing = true;
 	if (isSyncing) {
-		threadWaitForExit(syncThread);
-		threadClose(syncThread);
+		threadWaitForExit(&syncThread);
+		threadClose(&syncThread);
 	}
 	isSyncing = false;
 }
@@ -733,7 +726,7 @@ json_t* Client::doRequest(const char* method, std::string path, json_t* body, u3
 
 CURLM* curl_multi_handle;
 std::map<CURLM*, CURLcode> curl_handles_done;
-Thread* curl_multi_loop_thread;
+Thread curl_multi_loop_thread;
 
 
 void curl_multi_loop(void* p) {
@@ -771,7 +764,8 @@ json_t* Client::doRequestCurl(const char* method, std::string url, json_t* body,
 		curl_multi_handle = curl_multi_init();
 		s32 prio = 0;
 		svcGetThreadPriority(&prio, CUR_THREAD_HANDLE);
-		threadCreate(curl_multi_loop_thread, curl_multi_loop, NULL, NULL, 8*1024, prio-1, -2);
+		threadCreate(&curl_multi_loop_thread, curl_multi_loop, NULL, NULL, 8*1024, prio-1, -2);
+		threadStart(&curl_multi_loop_thread);
 	}
 
 	CURL* curl = curl_easy_init();
@@ -793,7 +787,7 @@ json_t* Client::doRequestCurl(const char* method, std::string url, json_t* body,
 	curl_easy_setopt(curl, CURLOPT_BUFFERSIZE, 102400L);
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, "3ds");
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, "switch");
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 50L);
 	curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, (long)CURL_HTTP_VERSION_2TLS);
