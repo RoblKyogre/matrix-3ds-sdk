@@ -393,6 +393,7 @@ void Client::startSyncLoop() {
 	s32 prio = 0;
 	svcGetThreadPriority(&prio, CUR_THREAD_HANDLE);
 	threadCreate(&syncThread, startSyncLoopWithoutClass, this, NULL, 8*1024, prio-1, -2);
+	threadStart(&syncThread);
 }
 
 void Client::stopSyncLoop() {
